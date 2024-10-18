@@ -96,3 +96,25 @@ type joinRequest struct {
 ```
 ?username=fsdfsd&serverId=fsdfsdf
 ```
+
+### .env example
+
+```
+JWT_SECRET="123456"
+
+# minutes
+JWT_LIFETIME=150
+
+# days
+REFRESH_TOKEN_LIFETIME=14
+
+
+AWS_ACCESS=123
+AWS_SECRET=123
+AWS_BUCKET_NAME="infinity"
+AWS_URL="s3.storage.selcloud.ru"
+
+
+AWS_CONTENT_URL="https://storage.infinityserver.ru"
+AWS_TEXTURES_URL="https://storage.infinityserver.ru/textures"
+```
