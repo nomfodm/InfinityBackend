@@ -3,6 +3,8 @@ package auth
 import (
 	"backend/internal/usecase"
 	"errors"
+	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -62,6 +64,11 @@ func (h *AuthHandler) SignIn(ctx *gin.Context) {
 		return
 	}
 
+	refreshTokenLifetime, _ := strconv.ParseInt(os.Getenv("REFRESH_TOKEN_LIFETIME"), 10, 64)
+
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetCookie("infinitymcRefreshToken", refreshToken, int(refreshTokenLifetime)*24*60*60, "/", "localhost:8000", true, true)
+
 	ctx.JSON(200, gin.H{
 		"accessToken":  accessToken,
 		"refreshToken": refreshToken,
@@ -69,19 +76,22 @@ func (h *AuthHandler) SignIn(ctx *gin.Context) {
 }
 
 func (h *AuthHandler) Logout(ctx *gin.Context) {
-	var request logoutRequest
-	if err := ctx.ShouldBindJSON(&request); err != nil {
-		jsonError(ctx, 400, "Validation error", err)
-		return
-	}
+	cookie, err := ctx.Cookie("infinitymcRefreshToken")
+	refreshToken := cookie
 
-	refreshToken := request.RefreshToken
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetCookie("infinitymcRefreshToken", "", 1, "/", "/", false, false)
 
-	err := h.uc.Logout(refreshToken)
 	if err != nil {
-		jsonError(ctx, 403, "Logout forbidden", err)
-		return
+		var request logoutRequest
+		if err := ctx.ShouldBindJSON(&request); err != nil {
+			jsonError(ctx, 400, "Validation error", err)
+			return
+		}
+		refreshToken = request.RefreshToken
 	}
+
+	h.uc.Logout(refreshToken)
 
 	ctx.JSON(200, gin.H{
 		"status": "ok",
@@ -89,13 +99,19 @@ func (h *AuthHandler) Logout(ctx *gin.Context) {
 }
 
 func (h *AuthHandler) Refresh(ctx *gin.Context) {
-	var request refreshRequest
-	if err := ctx.ShouldBindJSON(&request); err != nil {
-		jsonError(ctx, 400, "Validation error", err)
-		return
-	}
+	cookie, err := ctx.Cookie("infinitymcRefreshToken")
+	refreshToken := cookie
+	requestedFromBrowser := true
 
-	refreshToken := request.RefreshToken
+	if err != nil {
+		var request refreshRequest
+		if err := ctx.ShouldBindJSON(&request); err != nil {
+			jsonError(ctx, 400, "Validation error", err)
+			return
+		}
+		refreshToken = request.RefreshToken
+		requestedFromBrowser = false
+	}
 
 	accessToken, refreshToken, err := h.uc.Refresh(refreshToken)
 	if err != nil {
@@ -103,9 +119,20 @@ func (h *AuthHandler) Refresh(ctx *gin.Context) {
 		return
 	}
 
+	refreshTokenLifetime, _ := strconv.ParseInt(os.Getenv("REFRESH_TOKEN_LIFETIME"), 10, 64)
+
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetCookie("infinitymcRefreshToken", refreshToken, int(refreshTokenLifetime)*24*60*60, "/", "localhost:8000", true, true)
+
+	if !requestedFromBrowser {
+		ctx.JSON(200, gin.H{
+			"accessToken":  accessToken,
+			"refreshToken": refreshToken,
+		})
+		return
+	}
 	ctx.JSON(200, gin.H{
-		"accessToken":  accessToken,
-		"refreshToken": refreshToken,
+		"accessToken": accessToken,
 	})
 }
 
