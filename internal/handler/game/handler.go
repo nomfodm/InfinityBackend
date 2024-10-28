@@ -102,7 +102,8 @@ func (h *GameHandler) HasJoined(ctx *gin.Context) {
 
 func (h *GameHandler) Profile(ctx *gin.Context) {
 	uuid := ctx.Param("uuid")
-	if uuid == "" || len(uuid) != 32 || len(uuid) != 36 {
+
+	if uuid == "" || !(len(uuid) == 32 || len(uuid) == 36) {
 		ctx.Status(400)
 		return
 	}
