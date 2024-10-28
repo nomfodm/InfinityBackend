@@ -19,12 +19,12 @@ func NewAuthUseCaseImpl(repo repository.UserRepository) *AuthUseCaseImpl {
 }
 
 var (
-	ErrUsernameAlreadyInUse = errors.New("provided username is already in use")
-	ErrEmailAlreadyInUse    = errors.New("provided email is already in use")
+	ErrUsernameAlreadyInUse = errors.New("пользователь с таким именем пользователя уже существует")
+	ErrEmailAlreadyInUse    = errors.New("пользователь с таким E-mail адресов уже существует")
 	ErrCantHashPassword     = errors.New("cannot perform password hashing")
-	ErrInvalidPassword      = errors.New("invalid password")
+	ErrInvalidPassword      = errors.New("неверный пароль")
 
-	ErrUserNotFound         = errors.New("user not found in database")
+	ErrUserNotFound         = errors.New("пользователь с такими данными не найден")
 	ErrCantSaveRefreshToken = errors.New("cant save refresh token")
 	ErrRefreshTokenNotFound = errors.New("refresh token not found")
 	ErrRefreshTokenExpired  = errors.New("refresh token expired")
