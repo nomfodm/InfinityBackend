@@ -103,10 +103,13 @@ type joinRequest struct {
 JWT_SECRET="123456"
 
 # minutes
-JWT_LIFETIME=150
+JWT_LIFETIME=30
 
 # days
 REFRESH_TOKEN_LIFETIME=14
+
+
+FRONTEND_URL="http://localhost:5173"
 
 
 AWS_ACCESS=123
