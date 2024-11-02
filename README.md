@@ -110,6 +110,7 @@ REFRESH_TOKEN_LIFETIME=14
 
 
 FRONTEND_URL="http://localhost:5173"
+POSTGRES_DSN="host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable TimeZone=Europe/Moscow"
 
 
 AWS_ACCESS=123
