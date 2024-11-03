@@ -86,7 +86,10 @@ func (uc *AuthUseCaseImpl) Refresh(refreshToken string) (string, string, error) 
 	if err != nil {
 		return "", "", ErrRefreshTokenNotFound
 	}
-	uc.repo.DeleteRefreshToken(refreshToken)
+	err = uc.repo.DeleteRefreshToken(refreshToken)
+	if err != nil {
+		return "", "", err
+	}
 
 	if time.Now().After(refreshTokenRow.ExpiresAt) {
 		return "", "", ErrRefreshTokenExpired
