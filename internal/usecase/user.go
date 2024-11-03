@@ -15,10 +15,11 @@ import (
 
 type UserUseCaseImpl struct {
 	textureRepo repository.TextureRepository
+	userRepo    repository.UserRepository
 }
 
-func NewUserUseCaseImpl(textureRepo repository.TextureRepository) *UserUseCaseImpl {
-	return &UserUseCaseImpl{textureRepo: textureRepo}
+func NewUserUseCaseImpl(textureRepo repository.TextureRepository, userRepo repository.UserRepository) *UserUseCaseImpl {
+	return &UserUseCaseImpl{textureRepo: textureRepo, userRepo: userRepo}
 }
 
 func (uc *UserUseCaseImpl) SkinCapeHashes(user entity.User) (*string, *string) {
@@ -145,4 +146,8 @@ func (uc *UserUseCaseImpl) UploadCape(user entity.User, capeFileHeader multipart
 
 	err = uc.textureRepo.SetCapeToUser(user.ID, capeID)
 	return fileHashString, err
+}
+
+func (uc *UserUseCaseImpl) ChangeNickname(user entity.User, newUsername string) error {
+	return uc.userRepo.ChangeNickname(user.ID, newUsername)
 }

@@ -65,7 +65,7 @@ func main() {
 	authMiddleware := auth.NewAuthMiddleware(authUseCaseImpl)
 
 	postgresTextureRepository := postgresRepository.NewPostgresTextureRepository(db)
-	userUseCaseImpl := usecase.NewUserUseCaseImpl(postgresTextureRepository)
+	userUseCaseImpl := usecase.NewUserUseCaseImpl(postgresTextureRepository, postgresUserRepository)
 	userHandler := user.NewUserHandler(userUseCaseImpl)
 
 	userGroup := router.Group("/user", authMiddleware)
@@ -73,6 +73,7 @@ func main() {
 		userGroup.GET("/me", userHandler.Me)
 		userGroup.POST("/skin", userHandler.Skin)
 		userGroup.POST("/cape", userHandler.Cape)
+		userGroup.GET("/nickname", userHandler.Nickname)
 	}
 
 	postgresGameRepository := postgresRepository.NewPostgresGameRepository(db)

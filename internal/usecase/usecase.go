@@ -19,6 +19,7 @@ type UserUseCase interface {
 	SkinCapeHashes(user entity.User) (*string, *string)
 	UploadSkin(user entity.User, skinFileHeader multipart.FileHeader) (string, error)
 	UploadCape(user entity.User, capeFileHeader multipart.FileHeader) (string, error)
+	ChangeNickname(user entity.User, newUsername string) error
 }
 
 type GameUseCase interface {

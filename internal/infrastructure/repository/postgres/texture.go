@@ -17,13 +17,13 @@ func NewPostgresTextureRepository(db *gorm.DB) *PostgresTextureRepository {
 
 func (repo *PostgresTextureRepository) SkinByID(skinID uint) (entity.Skin, error) {
 	var skin entity.Skin
-	result := repo.db.Preload(clause.Associations).Where(&entity.Skin{ID: skinID}).First(&skin)
+	result := repo.db.Preload(clause.Associations).Where("id = ?", skinID).First(&skin)
 	return skin, result.Error
 }
 
 func (repo *PostgresTextureRepository) CapeByID(capeID uint) (entity.Cape, error) {
 	var cape entity.Cape
-	result := repo.db.Preload(clause.Associations).Where(&entity.Cape{ID: capeID}).First(&cape)
+	result := repo.db.Preload(clause.Associations).Where("id = ?", capeID).First(&cape)
 	return cape, result.Error
 }
 

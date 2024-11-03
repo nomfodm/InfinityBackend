@@ -50,13 +50,13 @@ func (repo *PostgresUserRepository) ByEmail(email string) (entity.User, error) {
 
 func (repo *PostgresUserRepository) ByID(userID uint) (entity.User, error) {
 	var user entity.User
-	result := repo.db.Preload(clause.Associations).Model(entity.User{ID: userID}).First(&user)
+	result := repo.db.Preload(clause.Associations).Where("id = ?", userID).First(&user)
 	return user, result.Error
 }
 
 func (repo *PostgresUserRepository) FindRefreshToken(refreshToken string) (entity.RefreshToken, error) {
 	var token entity.RefreshToken
-	result := repo.db.Where("token = ?", refreshToken).First(&token)
+	result := repo.db.Preload(clause.Associations).Where("token = ?", refreshToken).First(&token)
 	return token, result.Error
 }
 
@@ -90,5 +90,17 @@ func (repo *PostgresUserRepository) Activate(userID uint) error {
 	user.Active = true
 
 	result := repo.db.Save(&user)
+	return result.Error
+}
+
+func (repo *PostgresUserRepository) ChangeNickname(userID uint, newUsername string) error {
+	user, err := repo.ByID(userID)
+	if err != nil {
+		return err
+	}
+
+	user.MinecraftCredential.Username = newUsername
+
+	result := repo.db.Save(&user.MinecraftCredential)
 	return result.Error
 }

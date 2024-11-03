@@ -11,6 +11,7 @@ type UserRepository interface {
 	DeleteRefreshToken(refreshToken string) error
 	SaveRefreshToken(userID uint, refreshToken string) error
 	Activate(userID uint) error
+	ChangeNickname(userID uint, newUsername string) error
 }
 
 type TextureRepository interface {

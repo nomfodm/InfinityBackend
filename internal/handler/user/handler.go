@@ -3,7 +3,7 @@ package user
 import (
 	"backend/internal/entity"
 	"backend/internal/usecase"
-
+	"errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -89,5 +89,25 @@ func (h *UserHandler) Cape(ctx *gin.Context) {
 		"filesize": capeFileHeader.Size,
 		"capeHash": hash,
 	})
+}
 
+func (h *UserHandler) Nickname(ctx *gin.Context) {
+	user := parseUserFromContext(ctx)
+
+	newNickname := ctx.Query("new_nickname")
+	if newNickname == "" {
+		jsonError(ctx, 400, "Nickname is required", errors.New(""))
+		return
+	}
+
+	err := h.uc.ChangeNickname(user, newNickname)
+
+	if err != nil {
+		jsonError(ctx, 500, "Nickname change error", err)
+		return
+	}
+
+	ctx.JSON(200, gin.H{
+		"status": "ok",
+	})
 }
