@@ -47,10 +47,6 @@ func main() {
 	db.AutoMigrate(&entity.Skin{}, &entity.Cape{}, &entity.MinecraftCredential{}, &entity.User{}, &entity.RefreshToken{})
 
 	router := gin.Default()
-	IsRelease := os.Getenv("RELEASE") == "true"
-	if IsRelease {
-		gin.SetMode(gin.ReleaseMode)
-	}
 
 	router.Use(CORSMiddleware())
 
