@@ -100,6 +100,8 @@ type joinRequest struct {
 ### .env example
 
 ```
+RELEASE=false
+
 JWT_SECRET="123456"
 
 # minutes

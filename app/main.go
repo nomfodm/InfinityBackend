@@ -35,7 +35,7 @@ func CORSMiddleware() gin.HandlerFunc {
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	dsn := os.Getenv("POSTGRES_DSN")
@@ -47,6 +47,10 @@ func main() {
 	db.AutoMigrate(&entity.Skin{}, &entity.Cape{}, &entity.MinecraftCredential{}, &entity.User{}, &entity.RefreshToken{})
 
 	router := gin.Default()
+	IsRelease := os.Getenv("RELEASE") == "true"
+	if IsRelease {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	router.Use(CORSMiddleware())
 
