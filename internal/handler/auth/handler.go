@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"backend/internal/usecase"
 	"errors"
+	"github.com/nomfodm/InfinityBackend/internal/usecase"
 	"net/http"
 	"os"
 	"strconv"

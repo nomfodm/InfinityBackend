@@ -1,12 +1,12 @@
 package main
 
 import (
-	"backend/internal/entity"
-	"backend/internal/handler/auth"
-	"backend/internal/handler/game"
-	"backend/internal/handler/user"
-	postgresRepository "backend/internal/infrastructure/repository/postgres"
-	"backend/internal/usecase"
+	"github.com/nomfodm/InfinityBackend/internal/entity"
+	"github.com/nomfodm/InfinityBackend/internal/handler/auth"
+	"github.com/nomfodm/InfinityBackend/internal/handler/game"
+	"github.com/nomfodm/InfinityBackend/internal/handler/user"
+	postgresRepository "github.com/nomfodm/InfinityBackend/internal/infrastructure/repository/postgres"
+	"github.com/nomfodm/InfinityBackend/internal/usecase"
 	"log"
 	"os"
 

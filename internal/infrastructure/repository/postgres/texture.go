@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"backend/internal/entity"
+	"github.com/nomfodm/InfinityBackend/internal/entity"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

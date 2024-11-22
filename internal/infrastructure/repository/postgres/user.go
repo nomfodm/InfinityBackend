@@ -1,8 +1,8 @@
 package postgres
 
 import (
-	"backend/internal/entity"
 	"errors"
+	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"os"
 	"strconv"
 	"time"

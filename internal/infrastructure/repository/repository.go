@@ -1,6 +1,6 @@
 package repository
 
-import "backend/internal/entity"
+import "github.com/nomfodm/InfinityBackend/internal/entity"
 
 type UserRepository interface {
 	Create(username string, email string, passwordHash string) error

@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"backend/internal/usecase"
+	"github.com/nomfodm/InfinityBackend/internal/usecase"
 	"strings"
 
 	"github.com/gin-gonic/gin"

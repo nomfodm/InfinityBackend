@@ -1,10 +1,10 @@
 package usecase
 
 import (
-	"backend/internal/entity"
-	"backend/internal/infrastructure/repository"
-	"backend/internal/utils"
 	"errors"
+	"github.com/nomfodm/InfinityBackend/internal/entity"
+	"github.com/nomfodm/InfinityBackend/internal/infrastructure/repository"
+	"github.com/nomfodm/InfinityBackend/internal/utils"
 	"time"
 
 	"github.com/google/uuid"

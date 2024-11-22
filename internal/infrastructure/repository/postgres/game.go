@@ -1,9 +1,9 @@
 package postgres
 
 import (
-	"backend/internal/entity"
-	"backend/internal/utils"
 	"fmt"
+	"github.com/nomfodm/InfinityBackend/internal/entity"
+	"github.com/nomfodm/InfinityBackend/internal/utils"
 	"time"
 
 	"gorm.io/gorm"

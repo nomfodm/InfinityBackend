@@ -1,13 +1,13 @@
 package usecase
 
 import (
-	"backend/internal/entity"
-	"backend/internal/infrastructure/repository"
-	"backend/internal/utils"
 	"bytes"
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"github.com/nomfodm/InfinityBackend/internal/entity"
+	"github.com/nomfodm/InfinityBackend/internal/infrastructure/repository"
+	"github.com/nomfodm/InfinityBackend/internal/utils"
 	"io"
 	"mime/multipart"
 	"strings"

@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"backend/internal/entity"
+	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"mime/multipart"
 )
 

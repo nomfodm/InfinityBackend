@@ -1,10 +1,10 @@
 package user
 
 import (
-	"backend/internal/entity"
-	"backend/internal/usecase"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/nomfodm/InfinityBackend/internal/entity"
+	"github.com/nomfodm/InfinityBackend/internal/usecase"
 )
 
 type UserHandler struct {

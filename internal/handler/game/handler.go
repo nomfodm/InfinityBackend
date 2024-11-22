@@ -1,10 +1,10 @@
 package game
 
 import (
-	"backend/internal/entity"
-	"backend/internal/usecase"
-	"backend/internal/utils"
 	"errors"
+	"github.com/nomfodm/InfinityBackend/internal/entity"
+	"github.com/nomfodm/InfinityBackend/internal/usecase"
+	"github.com/nomfodm/InfinityBackend/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )

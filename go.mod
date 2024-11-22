@@ -1,4 +1,4 @@
-module backend
+module github.com/nomfodm/InfinityBackend
 
 go 1.23.0
 

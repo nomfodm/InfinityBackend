@@ -1,10 +1,10 @@
 package game
 
 import (
-	"backend/internal/entity"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"os"
 	"time"
 
