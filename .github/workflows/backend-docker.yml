@@ -9,7 +9,9 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: read
+      packages: write
     defaults:
       run:
         working-directory: ./
@@ -21,7 +23,7 @@ jobs:
         id: docker_meta
         uses: docker/metadata-action@v3
         with:
-          images: ghcr.io/nomfodm/InfinityBackend
+          images: ghcr.io/${{ github.repository_owner }}/InfinityBackend
       -
         name: Login to Github Images
         uses: docker/login-action@v1
