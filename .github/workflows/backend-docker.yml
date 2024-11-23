@@ -1,0 +1,27 @@
+name: docker-build
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Login to Github Images
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          push: 'true'
+          tags: ["release"]
+          labels: ["backend"]
