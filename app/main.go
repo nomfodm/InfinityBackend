@@ -9,6 +9,7 @@ import (
 	"github.com/nomfodm/InfinityBackend/internal/usecase"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -49,6 +50,13 @@ func main() {
 	router := gin.Default()
 
 	router.Use(CORSMiddleware())
+
+	router.GET("/checkConnection", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{
+			"status":     "working",
+			"serverTime": time.Now(),
+		})
+	})
 
 	postgresUserRepository := postgresRepository.NewPostgresUserRepository(db)
 	authUseCaseImpl := usecase.NewAuthUseCaseImpl(postgresUserRepository)
