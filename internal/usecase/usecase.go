@@ -28,3 +28,7 @@ type GameUseCase interface {
 	HasJoined(username, serverID string) (entity.User, error)
 	Profile(uuid string) (entity.User, *entity.Skin, *entity.Cape, error)
 }
+
+type LauncherUseCase interface {
+	CheckForUpdates(clientVersion, clientHash string) (actualVersion, actualHash string, isUpdates bool, err error)
+}

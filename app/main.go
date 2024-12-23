@@ -4,6 +4,7 @@ import (
 	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"github.com/nomfodm/InfinityBackend/internal/handler/auth"
 	"github.com/nomfodm/InfinityBackend/internal/handler/game"
+	"github.com/nomfodm/InfinityBackend/internal/handler/launcher"
 	"github.com/nomfodm/InfinityBackend/internal/handler/user"
 	postgresRepository "github.com/nomfodm/InfinityBackend/internal/infrastructure/repository/postgres"
 	"github.com/nomfodm/InfinityBackend/internal/usecase"
@@ -62,6 +63,7 @@ func main() {
 	authUseCaseImpl := usecase.NewAuthUseCaseImpl(postgresUserRepository)
 	authHandler := auth.NewAuthHandler(authUseCaseImpl)
 	authGroup := router.Group("/auth")
+
 	{
 		authGroup.POST("/signup", authHandler.SignUp)
 		authGroup.POST("/signin", authHandler.SignIn)
@@ -94,6 +96,14 @@ func main() {
 		gameGroup.POST("/join", gameHandler.Join)
 		gameGroup.GET("/profile/:uuid", gameHandler.Profile)
 		gameGroup.GET("/hasJoined", gameHandler.HasJoined)
+	}
+
+	launcherUseCaseImpl := usecase.NewLauncherUseCaseImpl()
+	launcherHandler := launcher.NewLauncherHandler(launcherUseCaseImpl)
+
+	launcherGroup := router.Group("/launcher")
+	{
+		launcherGroup.GET("/updates", launcherHandler.Updates)
 	}
 
 	router.Run(":8000")
