@@ -33,7 +33,13 @@ func (h *LauncherHandler) Updates(ctx *gin.Context) {
 
 	actualVersion, actualHash, isUpdates, err := h.uc.CheckForUpdates(clientVersion, clientHash)
 	if err != nil {
-		jsonError(ctx, 500, "Check for updates error", err)
+		ctx.JSON(200, gin.H{
+			"status":        "ok",
+			"clientVersion": clientVersion,
+			"clientHash":    clientHash,
+			"error":         err.Error(),
+		})
+		return
 	}
 
 	fmt.Println(actualVersion, actualHash, isUpdates, err)
@@ -53,4 +59,16 @@ func (h *LauncherHandler) Updates(ctx *gin.Context) {
 			"clientHash":    clientHash,
 		})
 	}
+}
+
+func (h *LauncherHandler) CheckForANewUpdate(ctx *gin.Context) {
+	err := h.uc.CheckForANewUpdate()
+	if err != nil {
+		jsonError(ctx, 500, "CheckForANewUpdate error", err)
+		return
+	}
+
+	ctx.JSON(200, gin.H{
+		"status": "ok",
+	})
 }

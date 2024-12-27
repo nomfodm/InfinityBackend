@@ -32,3 +32,9 @@ type GameRepository interface {
 	UserByUUID(uuid string) (entity.User, error)
 	ApplyServerIDToUser(userID uint, serverID string) error
 }
+
+type LauncherRepository interface {
+	GetCurrentVersionInformation() (entity.LauncherVersion, error)
+	ReleaseNewVersion(version entity.LauncherVersion) error
+	ModifyExistingVersion(version entity.LauncherVersion) error
+}

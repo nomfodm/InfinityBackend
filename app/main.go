@@ -46,7 +46,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db.AutoMigrate(&entity.Skin{}, &entity.Cape{}, &entity.MinecraftCredential{}, &entity.User{}, &entity.RefreshToken{})
+	err = db.AutoMigrate(&entity.Skin{}, &entity.Cape{}, &entity.MinecraftCredential{}, &entity.User{}, &entity.RefreshToken{}, &entity.LauncherVersion{})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	router := gin.Default()
 
@@ -98,12 +101,14 @@ func main() {
 		gameGroup.GET("/hasJoined", gameHandler.HasJoined)
 	}
 
-	launcherUseCaseImpl := usecase.NewLauncherUseCaseImpl()
+	launcherRepository := postgresRepository.NewPostgresLauncherRepository(db)
+	launcherUseCaseImpl := usecase.NewLauncherUseCaseImpl(launcherRepository)
 	launcherHandler := launcher.NewLauncherHandler(launcherUseCaseImpl)
 
 	launcherGroup := router.Group("/launcher")
 	{
 		launcherGroup.GET("/updates", launcherHandler.Updates)
+		launcherGroup.DELETE("/checkforupdate", launcherHandler.CheckForANewUpdate)
 	}
 
 	router.Run(":8000")
