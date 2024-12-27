@@ -21,16 +21,7 @@ func jsonError(ctx *gin.Context, code int, err string, errDetail error) {
 }
 
 func (h *LauncherHandler) Updates(ctx *gin.Context) {
-	var request updateRequest
-	if err := ctx.ShouldBindJSON(&request); err != nil {
-		jsonError(ctx, 400, "Validation error", err)
-		return
-	}
-
-	clientVersion := request.ClientVersion
-	clientHash := request.ClientHash
-
-	actualVersion, actualHash, err := h.uc.CheckForUpdates(clientVersion, clientHash)
+	actualVersion, actualHash, err := h.uc.CheckForUpdates()
 	if err != nil {
 		jsonError(ctx, 500, "CheckForUpdates error", err)
 		return

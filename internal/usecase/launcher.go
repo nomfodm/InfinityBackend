@@ -20,7 +20,7 @@ func NewLauncherUseCaseImpl(repo repository.LauncherRepository) *LauncherUseCase
 	return &LauncherUseCaseImpl{repo: repo}
 }
 
-func (uc *LauncherUseCaseImpl) CheckForUpdates(clientVersion, clientHash string) (actualVersion, actualHash string, err error) {
+func (uc *LauncherUseCaseImpl) CheckForUpdates() (actualVersion, actualHash string, err error) {
 	lastVersion, err := uc.repo.GetCurrentVersionInformation()
 	if err != nil {
 		return "", "", err
