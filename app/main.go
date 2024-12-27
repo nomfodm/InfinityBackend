@@ -4,6 +4,7 @@ import (
 	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"github.com/nomfodm/InfinityBackend/internal/handler/auth"
 	"github.com/nomfodm/InfinityBackend/internal/handler/game"
+	"github.com/nomfodm/InfinityBackend/internal/handler/launcher"
 	"github.com/nomfodm/InfinityBackend/internal/handler/user"
 	postgresRepository "github.com/nomfodm/InfinityBackend/internal/infrastructure/repository/postgres"
 	"github.com/nomfodm/InfinityBackend/internal/usecase"
@@ -45,7 +46,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db.AutoMigrate(&entity.Skin{}, &entity.Cape{}, &entity.MinecraftCredential{}, &entity.User{}, &entity.RefreshToken{})
+	err = db.AutoMigrate(&entity.Skin{}, &entity.Cape{}, &entity.MinecraftCredential{}, &entity.User{}, &entity.RefreshToken{}, &entity.LauncherVersion{})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	router := gin.Default()
 
@@ -62,6 +66,7 @@ func main() {
 	authUseCaseImpl := usecase.NewAuthUseCaseImpl(postgresUserRepository)
 	authHandler := auth.NewAuthHandler(authUseCaseImpl)
 	authGroup := router.Group("/auth")
+
 	{
 		authGroup.POST("/signup", authHandler.SignUp)
 		authGroup.POST("/signin", authHandler.SignIn)
@@ -94,6 +99,16 @@ func main() {
 		gameGroup.POST("/join", gameHandler.Join)
 		gameGroup.GET("/profile/:uuid", gameHandler.Profile)
 		gameGroup.GET("/hasJoined", gameHandler.HasJoined)
+	}
+
+	launcherRepository := postgresRepository.NewPostgresLauncherRepository(db)
+	launcherUseCaseImpl := usecase.NewLauncherUseCaseImpl(launcherRepository)
+	launcherHandler := launcher.NewLauncherHandler(launcherUseCaseImpl)
+
+	launcherGroup := router.Group("/launcher")
+	{
+		launcherGroup.GET("/updates", launcherHandler.Updates)
+		launcherGroup.DELETE("/checkforupdate", launcherHandler.CheckForANewUpdate)
 	}
 
 	router.Run(":8000")

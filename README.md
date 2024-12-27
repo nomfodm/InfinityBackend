@@ -121,4 +121,6 @@ AWS_URL="s3.storage.selcloud.ru"
 
 AWS_CONTENT_URL="https://storage.infinityserver.ru"
 AWS_TEXTURES_URL="https://storage.infinityserver.ru/textures"
+
+GITHUB_LAUNCHER_REPOSITORY_API_URL="https://api.github.com/repos/nomfodm/InfinityLauncher"
 ```
