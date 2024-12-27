@@ -30,6 +30,6 @@ type GameUseCase interface {
 }
 
 type LauncherUseCase interface {
-	CheckForUpdates(clientVersion, clientMD5 string) (actualVersion, actualHash string, isUpdates bool, err error)
+	CheckForUpdates(clientVersion, clientMD5 string) (actualVersion, actualHash string, err error)
 	CheckForANewUpdate() error
 }

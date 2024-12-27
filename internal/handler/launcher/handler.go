@@ -1,7 +1,6 @@
 package launcher
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/nomfodm/InfinityBackend/internal/usecase"
 )
@@ -31,34 +30,16 @@ func (h *LauncherHandler) Updates(ctx *gin.Context) {
 	clientVersion := request.ClientVersion
 	clientHash := request.ClientHash
 
-	actualVersion, actualHash, isUpdates, err := h.uc.CheckForUpdates(clientVersion, clientHash)
+	actualVersion, actualHash, err := h.uc.CheckForUpdates(clientVersion, clientHash)
 	if err != nil {
-		ctx.JSON(200, gin.H{
-			"status":        "ok",
-			"clientVersion": clientVersion,
-			"clientHash":    clientHash,
-			"error":         err.Error(),
-		})
+		jsonError(ctx, 500, "CheckForUpdates error", err)
 		return
 	}
 
-	fmt.Println(actualVersion, actualHash, isUpdates, err)
-	if isUpdates {
-		ctx.JSON(200, gin.H{
-			"status":        "new update",
-			"clientVersion": clientVersion,
-			"clientHash":    clientHash,
-
-			"actualVersion": actualVersion,
-			"actualHash":    actualHash,
-		})
-	} else {
-		ctx.JSON(200, gin.H{
-			"status":        "ok",
-			"clientVersion": clientVersion,
-			"clientHash":    clientHash,
-		})
-	}
+	ctx.JSON(200, gin.H{
+		"version": actualVersion,
+		"hash":    actualHash,
+	})
 }
 
 func (h *LauncherHandler) CheckForANewUpdate(ctx *gin.Context) {
