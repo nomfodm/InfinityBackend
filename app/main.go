@@ -105,10 +105,12 @@ func main() {
 	launcherUseCaseImpl := usecase.NewLauncherUseCaseImpl(launcherRepository)
 	launcherHandler := launcher.NewLauncherHandler(launcherUseCaseImpl)
 
+	adminAccessMiddleware := launcher.NewAdminAccessMiddleware()
+
 	launcherGroup := router.Group("/launcher")
 	{
 		launcherGroup.GET("/updates", launcherHandler.Updates)
-		launcherGroup.DELETE("/checkforupdate", launcherHandler.CheckForANewUpdate)
+		launcherGroup.GET("/checkforupdate", adminAccessMiddleware, launcherHandler.CheckForANewUpdate)
 	}
 
 	router.Run(":8000")
