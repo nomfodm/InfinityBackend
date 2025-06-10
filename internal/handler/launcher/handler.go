@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nomfodm/InfinityBackend/internal/usecase"
 	"github.com/nomfodm/InfinityBackend/internal/utils"
+	"net/http"
 )
 
 type LauncherHandler struct {
@@ -27,6 +28,16 @@ func (h *LauncherHandler) ActualVersion(ctx *gin.Context) {
 		"url":         version.DownloadUrl,
 		"releaseDate": version.ReleaseDate,
 	})
+}
+
+func (h *LauncherHandler) DownloadLauncher(ctx *gin.Context) {
+	version, err := h.uc.ActualLauncherVersion()
+	if err != nil {
+		utils.JsonError(ctx, 500, "ActualLauncherVersion error", err)
+		return
+	}
+
+	ctx.Redirect(http.StatusFound, version.DownloadUrl)
 }
 
 func (h *LauncherHandler) RegisterUpdate(ctx *gin.Context) {

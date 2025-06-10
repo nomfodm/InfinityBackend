@@ -112,6 +112,11 @@ func main() {
 
 	adminAccessMiddleware := launcher.NewAdminAccessMiddleware()
 
+	launcherGroup := router.Group("/launcher")
+	{
+		launcherGroup.GET("/download", launcherHandler.DownloadLauncher)
+	}
+
 	updateGroup := router.Group("/launcher/update")
 	{
 		updateGroup.GET("/actual", launcherHandler.ActualVersion)
