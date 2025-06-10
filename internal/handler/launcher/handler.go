@@ -3,6 +3,7 @@ package launcher
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/nomfodm/InfinityBackend/internal/usecase"
+	"github.com/nomfodm/InfinityBackend/internal/utils"
 )
 
 type LauncherHandler struct {
@@ -13,34 +14,33 @@ func NewLauncherHandler(uc usecase.LauncherUseCase) *LauncherHandler {
 	return &LauncherHandler{uc: uc}
 }
 
-func jsonError(ctx *gin.Context, code int, err string, errDetail error) {
-	ctx.AbortWithStatusJSON(code, gin.H{
-		"error":  err,
-		"detail": errDetail.Error(),
-	})
-}
-
-func (h *LauncherHandler) Updates(ctx *gin.Context) {
-	actualVersion, actualHash, err := h.uc.CheckForUpdates()
+func (h *LauncherHandler) ActualVersion(ctx *gin.Context) {
+	version, err := h.uc.ActualLauncherVersion()
 	if err != nil {
-		jsonError(ctx, 500, "CheckForUpdates error", err)
+		utils.JsonError(ctx, 500, "ActualLauncherVersion error", err)
 		return
 	}
 
 	ctx.JSON(200, gin.H{
-		"version": actualVersion,
-		"hash":    actualHash,
+		"version":     version.Version,
+		"sha256":      version.SHA256,
+		"url":         version.DownloadUrl,
+		"releaseDate": version.ReleaseDate,
 	})
 }
 
-func (h *LauncherHandler) CheckForANewUpdate(ctx *gin.Context) {
-	err := h.uc.CheckForANewUpdate()
-	if err != nil {
-		jsonError(ctx, 500, "CheckForANewUpdate error", err)
+func (h *LauncherHandler) RegisterUpdate(ctx *gin.Context) {
+	var request registerUpdateRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		utils.JsonError(ctx, 400, "Validation error", err)
 		return
 	}
 
-	ctx.JSON(200, gin.H{
-		"status": "ok",
-	})
+	newVersion, err := h.uc.RegisterNewUpdate(request.Version, request.SHA256, request.DownloadUrl)
+	if err != nil {
+		utils.JsonError(ctx, 500, "RegisterNewUpdate error", err)
+		return
+	}
+
+	ctx.JSON(200, newVersion)
 }

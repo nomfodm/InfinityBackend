@@ -2,10 +2,11 @@ package postgres
 
 import (
 	"errors"
-	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/nomfodm/InfinityBackend/internal/entity"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -75,6 +76,7 @@ func (repo *PostgresUserRepository) SaveRefreshToken(userID uint, refreshToken s
 		UserID:    userID,
 		Token:     refreshToken,
 		ExpiresAt: time.Now().Add(time.Duration(refreshTokenLifetime) * time.Hour * 24),
+		// ExpiresAt: time.Now().Add(time.Duration(refreshTokenLifetime) * time.Second),
 	}
 
 	err := repo.db.Model(&entity.User{ID: userID}).Association("RefreshTokens").Append(&refreshTokenToCreate)

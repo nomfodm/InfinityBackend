@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"github.com/nomfodm/InfinityBackend/internal/handler/auth"
 	"github.com/nomfodm/InfinityBackend/internal/handler/game"
@@ -9,7 +11,10 @@ import (
 	postgresRepository "github.com/nomfodm/InfinityBackend/internal/infrastructure/repository/postgres"
 	"github.com/nomfodm/InfinityBackend/internal/usecase"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -105,11 +110,37 @@ func main() {
 	launcherUseCaseImpl := usecase.NewLauncherUseCaseImpl(launcherRepository)
 	launcherHandler := launcher.NewLauncherHandler(launcherUseCaseImpl)
 
-	launcherGroup := router.Group("/launcher")
+	adminAccessMiddleware := launcher.NewAdminAccessMiddleware()
+
+	updateGroup := router.Group("/launcher/update")
 	{
-		launcherGroup.GET("/updates", launcherHandler.Updates)
-		launcherGroup.DELETE("/checkforupdate", launcherHandler.CheckForANewUpdate)
+		updateGroup.GET("/actual", launcherHandler.ActualVersion)
+		updateGroup.POST("/register", adminAccessMiddleware, launcherHandler.RegisterUpdate)
 	}
 
-	router.Run(":8000")
+	srv := &http.Server{
+		Addr:    ":8000",
+		Handler: router.Handler(),
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Println("Server Shutdown:", err)
+	}
+
+	<-ctx.Done()
+	log.Println("timeout of 2 seconds.")
+	log.Println("Server exiting")
 }

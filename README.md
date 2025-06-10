@@ -97,6 +97,25 @@ type joinRequest struct {
 ?username=fsdfsd&serverId=fsdfsdf
 ```
 
+### POST /launcher/update/register
+```json
+{
+  "Authorization": "admin_password"
+}
+```
+
+```go
+type registerUpdateRequest struct {
+	Version     string `json:"version" binding:"required"`
+	DownloadUrl string `json:"downloadUrl" binding:"required"`
+	SHA256      string `json:"sha256" binding:"required"`
+}
+
+```
+
+
+
+
 ### .env example
 
 ```
@@ -123,4 +142,6 @@ AWS_CONTENT_URL="https://storage.infinityserver.ru"
 AWS_TEXTURES_URL="https://storage.infinityserver.ru/textures"
 
 GITHUB_LAUNCHER_REPOSITORY_API_URL="https://api.github.com/repos/nomfodm/InfinityLauncher"
+
+ADMIN_PASSWORD="qwerty"
 ```

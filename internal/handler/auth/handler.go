@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"github.com/nomfodm/InfinityBackend/internal/usecase"
+	"github.com/nomfodm/InfinityBackend/internal/utils"
 	"net/http"
 	"os"
 	"strconv"
@@ -19,17 +20,10 @@ func NewAuthHandler(uc usecase.AuthUseCase) *AuthHandler {
 	return &AuthHandler{uc: uc}
 }
 
-func jsonError(ctx *gin.Context, code int, err string, errDetail error) {
-	ctx.AbortWithStatusJSON(code, gin.H{
-		"error":  err,
-		"detail": errDetail.Error(),
-	})
-}
-
 func (h *AuthHandler) SignUp(ctx *gin.Context) {
 	var request signUpRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		jsonError(ctx, 400, "Validation error", err)
+		utils.JsonError(ctx, 400, "Validation error", err)
 		return
 	}
 
@@ -39,7 +33,7 @@ func (h *AuthHandler) SignUp(ctx *gin.Context) {
 
 	err := h.uc.SignUp(username, email, password)
 	if err != nil {
-		jsonError(ctx, 400, "User registration error", err)
+		utils.JsonError(ctx, 400, "User registration error", err)
 		return
 	}
 
@@ -51,7 +45,7 @@ func (h *AuthHandler) SignUp(ctx *gin.Context) {
 func (h *AuthHandler) SignIn(ctx *gin.Context) {
 	var request signInRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		jsonError(ctx, 400, "Validation error", err)
+		utils.JsonError(ctx, 400, "Validation error", err)
 		return
 	}
 
@@ -60,7 +54,7 @@ func (h *AuthHandler) SignIn(ctx *gin.Context) {
 
 	accessToken, refreshToken, err := h.uc.SignIn(username, password)
 	if err != nil {
-		jsonError(ctx, 400, "User authentication error", err)
+		utils.JsonError(ctx, 400, "User authentication error", err)
 		return
 	}
 
@@ -85,7 +79,7 @@ func (h *AuthHandler) Logout(ctx *gin.Context) {
 	if err != nil {
 		var request logoutRequest
 		if err := ctx.ShouldBindJSON(&request); err != nil {
-			jsonError(ctx, 400, "Validation error", err)
+			utils.JsonError(ctx, 400, "Validation error", err)
 			return
 		}
 		refreshToken = request.RefreshToken
@@ -106,7 +100,7 @@ func (h *AuthHandler) Refresh(ctx *gin.Context) {
 	if err != nil {
 		var request refreshRequest
 		if err := ctx.ShouldBindJSON(&request); err != nil {
-			jsonError(ctx, 400, "Validation error", err)
+			utils.JsonError(ctx, 400, "Validation error", err)
 			return
 		}
 		refreshToken = request.RefreshToken
@@ -115,7 +109,7 @@ func (h *AuthHandler) Refresh(ctx *gin.Context) {
 
 	accessToken, refreshToken, err := h.uc.Refresh(refreshToken)
 	if err != nil {
-		jsonError(ctx, 400, "Token renewing error", err)
+		utils.JsonError(ctx, 400, "Token renewing error", err)
 		return
 	}
 
@@ -141,19 +135,19 @@ func (h *AuthHandler) Activate(ctx *gin.Context) {
 
 	activationCode := strings.Split(activationCodeParam, "/")
 	if len(activationCode) != 2 {
-		jsonError(ctx, 400, "Validation error", errors.New("activation code must be uuid/uint type"))
+		utils.JsonError(ctx, 400, "Validation error", errors.New("activation code must be uuid/uint type"))
 		return
 	}
 	uuid := activationCode[0]
 	userID, err := strconv.ParseUint(activationCode[1], 10, 32)
 	if err != nil {
-		jsonError(ctx, 400, "Validation error", errors.New("activation code must be uuid/uint type"))
+		utils.JsonError(ctx, 400, "Validation error", errors.New("activation code must be uuid/uint type"))
 		return
 	}
 
 	err = h.uc.Activate(uint(userID), uuid)
 	if err != nil {
-		jsonError(ctx, 400, "Activation error", err)
+		utils.JsonError(ctx, 400, "Activation error", err)
 		return
 	}
 

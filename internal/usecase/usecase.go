@@ -30,6 +30,12 @@ type GameUseCase interface {
 }
 
 type LauncherUseCase interface {
-	CheckForUpdates() (actualVersion, actualHash string, err error)
-	CheckForANewUpdate() error
+	ActualLauncherVersion() (entity.LauncherVersion, error)
+	RegisterNewUpdate(version, sha256, downloadUrl string) (entity.LauncherVersion, error)
+}
+
+type ServerStatusUseCase interface {
+	InitServerStatus() error
+	CurrentServerStatus() (entity.ServerStatus, error)
+	SetServerStatus(newStatus int) error
 }
