@@ -97,6 +97,25 @@ type joinRequest struct {
 ?username=fsdfsd&serverId=fsdfsdf
 ```
 
+### POST /launcher/update/register
+```json
+{
+  "Authorization": "admin_password"
+}
+```
+
+```go
+type registerUpdateRequest struct {
+	Version     string `json:"version" binding:"required"`
+	DownloadUrl string `json:"downloadUrl" binding:"required"`
+	SHA256      string `json:"sha256" binding:"required"`
+}
+
+```
+
+
+
+
 ### .env example
 
 ```
