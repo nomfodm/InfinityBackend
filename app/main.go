@@ -112,10 +112,10 @@ func main() {
 
 	adminAccessMiddleware := launcher.NewAdminAccessMiddleware()
 
-	launcherGroup := router.Group("/launcher")
+	updateGroup := router.Group("/launcher/update")
 	{
-		launcherGroup.GET("/updates", launcherHandler.Updates)
-		launcherGroup.GET("/checkforupdate", adminAccessMiddleware, launcherHandler.CheckForANewUpdate)
+		updateGroup.GET("/actual", launcherHandler.ActualVersion)
+		updateGroup.POST("/register", adminAccessMiddleware, launcherHandler.RegisterUpdate)
 	}
 
 	srv := &http.Server{

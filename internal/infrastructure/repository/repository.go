@@ -34,7 +34,12 @@ type GameRepository interface {
 }
 
 type LauncherRepository interface {
-	GetCurrentVersionInformation() (entity.LauncherVersion, error)
-	ReleaseNewVersion(version entity.LauncherVersion) error
-	ModifyExistingVersion(version entity.LauncherVersion) error
+	GetLatestLauncherVersion() (entity.LauncherVersion, error)
+	CreateNewLauncherVersion(version entity.LauncherVersion) error
+}
+
+type ServerStatusRepository interface {
+	InitServerStatus() error
+	CurrentServerStatus() (entity.ServerStatus, error)
+	SetServerStatus(newStatus int) error
 }

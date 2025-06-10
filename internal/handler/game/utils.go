@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -28,9 +29,11 @@ func Profile(user entity.User, skin *entity.Skin, cape *entity.Cape) (gin.H, err
 		}
 	}
 
+	uuidString := strings.Replace(user.MinecraftCredential.UUID.String(), "-", "", -1)
+
 	texturesProperty := gin.H{
 		"timestamp":   timestampNow,
-		"profileId":   user.MinecraftCredential.UUID,
+		"profileId":   uuidString,
 		"profileName": user.MinecraftCredential.Username,
 		"textures":    textures,
 	}
@@ -43,7 +46,7 @@ func Profile(user entity.User, skin *entity.Skin, cape *entity.Cape) (gin.H, err
 	texturesPropertyBase64 := base64.StdEncoding.EncodeToString(texturesPropertyJsonString)
 
 	profile := gin.H{
-		"id":   user.MinecraftCredential.UUID,
+		"id":   uuidString,
 		"name": user.MinecraftCredential.Username,
 		"properties": []any{
 			gin.H{

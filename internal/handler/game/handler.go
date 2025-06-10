@@ -2,11 +2,10 @@ package game
 
 import (
 	"errors"
+	"github.com/gin-gonic/gin"
 	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"github.com/nomfodm/InfinityBackend/internal/usecase"
 	"github.com/nomfodm/InfinityBackend/internal/utils"
-
-	"github.com/gin-gonic/gin"
 )
 
 type GameHandler struct {
@@ -22,13 +21,6 @@ func parseUserFromContext(ctx *gin.Context) entity.User {
 	return userRaw.(entity.User)
 }
 
-func jsonError(ctx *gin.Context, code int, err string, errDetail error) {
-	ctx.AbortWithStatusJSON(code, gin.H{
-		"error":  err,
-		"detail": errDetail.Error(),
-	})
-}
-
 func minecraftError(ctx *gin.Context, code int, err string, errDetail error) {
 	ctx.AbortWithStatusJSON(code, gin.H{
 		"error":        err,
@@ -41,7 +33,7 @@ func (h *GameHandler) Launcher(ctx *gin.Context) {
 	user := parseUserFromContext(ctx)
 	username, uuid, accessToken, err := h.uc.Launcher(user)
 	if err != nil {
-		jsonError(ctx, 500, "Cant generate user data", err)
+		utils.JsonError(ctx, 500, "Cant generate user data", err)
 		return
 	}
 

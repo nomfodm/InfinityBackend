@@ -1,15 +1,9 @@
 package usecase
 
 import (
-	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
 	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"github.com/nomfodm/InfinityBackend/internal/infrastructure/repository"
-	"io"
-	"net/http"
-	"os"
+	"time"
 )
 
 type LauncherUseCaseImpl struct {
@@ -20,88 +14,17 @@ func NewLauncherUseCaseImpl(repo repository.LauncherRepository) *LauncherUseCase
 	return &LauncherUseCaseImpl{repo: repo}
 }
 
-func (uc *LauncherUseCaseImpl) CheckForUpdates() (actualVersion, actualHash string, err error) {
-	lastVersion, err := uc.repo.GetCurrentVersionInformation()
-	if err != nil {
-		return "", "", err
-	}
-
-	return lastVersion.CurrentVersion, lastVersion.CurrentBinarySHA256, nil
+func (uc *LauncherUseCaseImpl) ActualLauncherVersion() (entity.LauncherVersion, error) {
+	return uc.repo.GetLatestLauncherVersion()
 }
 
-func (uc *LauncherUseCaseImpl) CheckForANewUpdate() error {
-	ghRepoUrlAPI := os.Getenv("GITHUB_LAUNCHER_REPOSITORY_API_URL")
-	response, err := http.Get(ghRepoUrlAPI + "/releases/latest")
-	if err != nil {
-		return err
+func (uc *LauncherUseCaseImpl) RegisterNewUpdate(version, sha256, downloadUrl string) (entity.LauncherVersion, error) {
+	newVersion := entity.LauncherVersion{
+		DownloadUrl: downloadUrl,
+		SHA256:      sha256,
+		Version:     version,
+		ReleaseDate: time.Now(),
 	}
-	defer response.Body.Close()
-
-	type releaseResponse struct {
-		TagName string `json:"tag_name"`
-		Assets  []struct {
-			BrowserDownloadURL string `json:"browser_download_url"`
-		}
-	}
-
-	responseBody, _ := io.ReadAll(response.Body)
-
-	var responseBodyJson releaseResponse
-	err = json.Unmarshal(responseBody, &responseBodyJson)
-	if err != nil {
-		return err
-	}
-
-	lastVersion, err := uc.repo.GetCurrentVersionInformation()
-	if err != nil {
-		lastVersion = entity.LauncherVersion{}
-	}
-
-	hashResponse, err := http.Get(responseBodyJson.Assets[0].BrowserDownloadURL)
-	if err != nil {
-		return err
-	}
-	defer hashResponse.Body.Close()
-	if hashResponse.StatusCode != 200 { // no releases at all
-		return err
-	}
-
-	launcherUpdateBinaryData, err := io.ReadAll(hashResponse.Body)
-	if err != nil {
-		return err
-	}
-
-	hasher := sha256.New()
-	if _, err = io.Copy(hasher, bytes.NewBuffer(launcherUpdateBinaryData)); err != nil {
-		return err
-	}
-
-	ghVersion := responseBodyJson.TagName
-	ghHash := hex.EncodeToString(hasher.Sum(nil))
-
-	if lastVersion.CurrentVersion != ghVersion {
-		if lastVersion.CurrentBinarySHA256 == ghHash {
-			err = uc.repo.ModifyExistingVersion(entity.LauncherVersion{
-				ID:                  lastVersion.ID,
-				CurrentVersion:      ghVersion,
-				CurrentBinarySHA256: ghHash,
-			})
-			return nil
-		}
-		err = uc.repo.ReleaseNewVersion(entity.LauncherVersion{
-			CurrentVersion:      ghVersion,
-			CurrentBinarySHA256: ghHash,
-		})
-
-		return nil
-	}
-	if lastVersion.CurrentBinarySHA256 != ghHash {
-		err = uc.repo.ModifyExistingVersion(entity.LauncherVersion{
-			ID:                  lastVersion.ID,
-			CurrentVersion:      ghVersion,
-			CurrentBinarySHA256: ghHash,
-		})
-	}
-
-	return nil
+	err := uc.repo.CreateNewLauncherVersion(newVersion)
+	return newVersion, err
 }

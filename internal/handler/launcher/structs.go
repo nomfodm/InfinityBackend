@@ -1,6 +1,7 @@
 package launcher
 
-type updateRequest struct {
-	ClientVersion string `json:"clientVersion" binding:"required"`
-	ClientHash    string `json:"clientHash" binding:"required"`
+type registerUpdateRequest struct {
+	Version     string `json:"version" binding:"required"`
+	DownloadUrl string `json:"downloadUrl" binding:"required"`
+	SHA256      string `json:"sha256" binding:"required"`
 }
