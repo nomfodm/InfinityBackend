@@ -115,6 +115,12 @@ func main() {
 	launcherGroup := router.Group("/launcher")
 	{
 		launcherGroup.GET("/download", launcherHandler.DownloadLauncher)
+		launcherGroup.GET("/updates", func(c *gin.Context) {
+			c.JSON(302, gin.H{
+				"error":  "Page Moved",
+				"detail": "Была переработана система версий лаунчера, скачайте актуальную версию вручную: infinityserver.ru/launcher",
+			})
+		})
 	}
 
 	updateGroup := router.Group("/launcher/update")
