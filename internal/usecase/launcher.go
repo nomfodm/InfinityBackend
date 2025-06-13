@@ -18,12 +18,13 @@ func (uc *LauncherUseCaseImpl) ActualLauncherVersion() (entity.LauncherVersion, 
 	return uc.repo.GetLatestLauncherVersion()
 }
 
-func (uc *LauncherUseCaseImpl) RegisterNewUpdate(version, sha256, downloadUrl string) (entity.LauncherVersion, error) {
+func (uc *LauncherUseCaseImpl) RegisterNewUpdate(version, sha256, downloadUrl string, mandatory bool) (entity.LauncherVersion, error) {
 	newVersion := entity.LauncherVersion{
 		DownloadUrl: downloadUrl,
 		SHA256:      sha256,
 		Version:     version,
 		ReleaseDate: time.Now(),
+		Mandatory:   mandatory,
 	}
 	err := uc.repo.CreateNewLauncherVersion(newVersion)
 	return newVersion, err

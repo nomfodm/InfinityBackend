@@ -27,6 +27,7 @@ func (h *LauncherHandler) ActualVersion(ctx *gin.Context) {
 		"sha256":      version.SHA256,
 		"url":         version.DownloadUrl,
 		"releaseDate": version.ReleaseDate,
+		"mandatory":   version.Mandatory,
 	})
 }
 
@@ -47,7 +48,7 @@ func (h *LauncherHandler) RegisterUpdate(ctx *gin.Context) {
 		return
 	}
 
-	newVersion, err := h.uc.RegisterNewUpdate(request.Version, request.SHA256, request.DownloadUrl)
+	newVersion, err := h.uc.RegisterNewUpdate(request.Version, request.SHA256, request.DownloadUrl, request.Mandatory)
 	if err != nil {
 		utils.JsonError(ctx, 500, "RegisterNewUpdate error", err)
 		return
