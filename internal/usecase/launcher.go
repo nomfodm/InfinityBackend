@@ -15,7 +15,7 @@ func NewLauncherUseCaseImpl(repo repository.LauncherRepository) *LauncherUseCase
 }
 
 func (uc *LauncherUseCaseImpl) ActualLauncherVersion() (entity.LauncherVersion, error) {
-	return uc.repo.GetLatestLauncherVersion()
+	return uc.repo.LatestLauncherVersion()
 }
 
 func (uc *LauncherUseCaseImpl) RegisterNewUpdate(version, sha256, downloadUrl string, mandatory bool) (entity.LauncherVersion, error) {
@@ -28,4 +28,8 @@ func (uc *LauncherUseCaseImpl) RegisterNewUpdate(version, sha256, downloadUrl st
 	}
 	err := uc.repo.CreateNewLauncherVersion(newVersion)
 	return newVersion, err
+}
+
+func (uc *LauncherUseCaseImpl) LastMandatoryVersion() (entity.LauncherVersion, error) {
+	return uc.repo.LastMandatoryVersion()
 }

@@ -56,3 +56,19 @@ func (h *LauncherHandler) RegisterUpdate(ctx *gin.Context) {
 
 	ctx.JSON(200, newVersion)
 }
+
+func (h *LauncherHandler) LastMandatory(ctx *gin.Context) {
+	version, err := h.uc.LastMandatoryVersion()
+	if err != nil {
+		utils.JsonError(ctx, 500, "LastMandatoryVersion error", err)
+		return
+	}
+
+	ctx.JSON(200, gin.H{
+		"version":     version.Version,
+		"sha256":      version.SHA256,
+		"url":         version.DownloadUrl,
+		"releaseDate": version.ReleaseDate,
+		"mandatory":   version.Mandatory,
+	})
+}

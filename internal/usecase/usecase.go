@@ -31,6 +31,7 @@ type GameUseCase interface {
 
 type LauncherUseCase interface {
 	ActualLauncherVersion() (entity.LauncherVersion, error)
+	LastMandatoryVersion() (entity.LauncherVersion, error)
 	RegisterNewUpdate(version, sha256, downloadUrl string, mandatory bool) (entity.LauncherVersion, error)
 }
 

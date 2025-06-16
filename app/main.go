@@ -127,6 +127,7 @@ func main() {
 	{
 		updateGroup.GET("/actual", launcherHandler.ActualVersion)
 		updateGroup.POST("/register", adminAccessMiddleware, launcherHandler.RegisterUpdate)
+		updateGroup.GET("/lastmandatory", launcherHandler.LastMandatory)
 	}
 
 	srv := &http.Server{
