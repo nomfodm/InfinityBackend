@@ -28,12 +28,11 @@ func (h *UserHandler) Me(ctx *gin.Context) {
 	textures := textures{SkinHash: skinHash, CapeHash: capeHash}
 
 	response := meResponse{ID: user.ID,
-		Username:            user.Username,
-		Email:               user.Email,
-		Active:              user.Active,
-		RegisteredAt:        user.RegisteredAt,
-		Textures:            textures,
-		MinecraftCredential: minecraftCredential{Username: user.MinecraftCredential.Username, UUID: user.MinecraftCredential.UUID},
+		Username:     user.Username,
+		Email:        user.Email,
+		Active:       user.Active,
+		RegisteredAt: user.RegisteredAt,
+		Textures:     textures,
 	}
 
 	ctx.JSON(200, response)
