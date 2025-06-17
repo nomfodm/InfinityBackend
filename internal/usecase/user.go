@@ -3,6 +3,7 @@ package usecase
 import (
 	"bytes"
 	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/nomfodm/InfinityBackend/internal/entity"
@@ -10,7 +11,6 @@ import (
 	"github.com/nomfodm/InfinityBackend/internal/utils"
 	"io"
 	"mime/multipart"
-	"strings"
 )
 
 type UserUseCaseImpl struct {
@@ -51,13 +51,11 @@ func (uc *UserUseCaseImpl) SkinCapeHashes(user entity.User) (*string, *string) {
 	}
 
 	return skinHash, capeHash
-
 }
 
 func (uc *UserUseCaseImpl) UploadSkin(user entity.User, skinFileHeader multipart.FileHeader) (string, error) {
-	filename := skinFileHeader.Filename
-	if !strings.HasSuffix(filename, ".png") {
-		return "", errors.New("texture file type must be png")
+	if skinFileHeader.Header.Get("content-type") != "image/png" {
+		return "", errors.New("skin file must be png")
 	}
 
 	skinFile, err := skinFileHeader.Open()
@@ -66,15 +64,21 @@ func (uc *UserUseCaseImpl) UploadSkin(user entity.User, skinFileHeader multipart
 	}
 	defer skinFile.Close()
 
-	skinFileBuffer := make([]byte, skinFileHeader.Size)
-	skinFile.Read(skinFileBuffer)
+	if err := utils.ValidateSkin(skinFile); err != nil {
+		return "", err
+	}
+
+	skinFileBuffer := bytes.NewBuffer(nil)
+	if _, err = io.Copy(skinFileBuffer, skinFile); err != nil {
+		return "", err
+	}
 
 	hasher := sha256.New()
-	if _, err := io.Copy(hasher, bytes.NewReader(skinFileBuffer)); err != nil {
+	if _, err := io.Copy(hasher, skinFile); err != nil {
 		return "", err
 	}
 	fileHash := hasher.Sum(nil)
-	fileHashString := fmt.Sprintf("%x", fileHash)
+	fileHashString := hex.EncodeToString(fileHash)
 
 	skinInDB, err := uc.textureRepo.SkinByHash(fileHashString)
 	if err == nil {
@@ -82,17 +86,17 @@ func (uc *UserUseCaseImpl) UploadSkin(user entity.User, skinFileHeader multipart
 		return fileHashString, err
 	}
 
-	err = utils.UploadImagePNGToS3(fmt.Sprintf("textures/%s", fileHashString), skinFileBuffer)
+	headBuffer, err := utils.RenderHeadOutOfSkin(skinFileHeader)
 	if err != nil {
 		return "", err
 	}
 
-	avatarBuffer, err := utils.CropAvatarOutOfSkin(skinFileHeader)
+	err = utils.UploadImagePNGToS3(fmt.Sprintf("textures/%s", fileHashString), skinFileBuffer.Bytes())
 	if err != nil {
 		return "", err
 	}
 
-	err = utils.UploadImagePNGToS3(fmt.Sprintf("textures/avatars/%s", fileHashString), avatarBuffer)
+	err = utils.UploadImagePNGToS3(fmt.Sprintf("textures/avatars/%s", fileHashString), headBuffer)
 	if err != nil {
 		return "", err
 	}
@@ -107,9 +111,8 @@ func (uc *UserUseCaseImpl) UploadSkin(user entity.User, skinFileHeader multipart
 }
 
 func (uc *UserUseCaseImpl) UploadCape(user entity.User, capeFileHeader multipart.FileHeader) (string, error) {
-	filename := capeFileHeader.Filename
-	if !strings.HasSuffix(filename, ".png") {
-		return "", errors.New("texture file type must be png")
+	if capeFileHeader.Header.Get("content-type") != "image/png" {
+		return "", errors.New("skin file must be png")
 	}
 
 	capeFile, err := capeFileHeader.Open()
