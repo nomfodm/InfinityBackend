@@ -64,17 +64,15 @@ func (uc *UserUseCaseImpl) UploadSkin(user entity.User, skinFileHeader multipart
 	}
 	defer skinFile.Close()
 
-	if err := utils.ValidateSkin(skinFile); err != nil {
-		return "", err
-	}
+	var skinFileBuffer bytes.Buffer
+	tee := io.TeeReader(skinFile, &skinFileBuffer)
 
-	skinFileBuffer := bytes.NewBuffer(nil)
-	if _, err = io.Copy(skinFileBuffer, skinFile); err != nil {
+	if err := utils.ValidateSkin(tee); err != nil {
 		return "", err
 	}
 
 	hasher := sha256.New()
-	if _, err := io.Copy(hasher, skinFile); err != nil {
+	if _, err := io.Copy(hasher, tee); err != nil {
 		return "", err
 	}
 	fileHash := hasher.Sum(nil)
