@@ -6,11 +6,12 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
+	"mime/multipart"
+
 	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"github.com/nomfodm/InfinityBackend/internal/infrastructure/repository"
 	"github.com/nomfodm/InfinityBackend/internal/utils"
-	"io"
-	"mime/multipart"
 )
 
 type UserUseCaseImpl struct {
@@ -72,7 +73,7 @@ func (uc *UserUseCaseImpl) UploadSkin(user entity.User, skinFileHeader multipart
 	}
 
 	hasher := sha256.New()
-	if _, err := io.Copy(hasher, tee); err != nil {
+	if _, err := io.Copy(hasher, bytes.NewBuffer(skinFileBuffer.Bytes())); err != nil {
 		return "", err
 	}
 	fileHash := hasher.Sum(nil)
