@@ -1,19 +1,20 @@
-package status
+package healthstate
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"github.com/nomfodm/InfinityBackend/internal/usecase"
-	"net/http"
-	"time"
 )
 
-type StatusMiddleware struct {
-	uc usecase.ServerStatusUseCase
+type HealthStateMiddleware struct {
+	uc usecase.HealthStateUseCase
 }
 
-func NewStatusMiddleware(uc usecase.ServerStatusUseCase) gin.HandlerFunc {
-	return (&StatusMiddleware{uc}).Handle
+func NewHealthStateMiddleware(uc usecase.HealthStateUseCase) gin.HandlerFunc {
+	return (&HealthStateMiddleware{uc: uc}).Handle
 }
 
 func statusError(ctx *gin.Context, err error) {
@@ -30,13 +31,13 @@ func StatusNotOK(ctx *gin.Context, status int) {
 	})
 }
 
-func GetStatusFromCtx(ctx *gin.Context) entity.ServerStatus {
+func GetStatusFromCtx(ctx *gin.Context) entity.HealthState {
 	serverStatusRaw, _ := ctx.Get("serverstatus")
-	return serverStatusRaw.(entity.ServerStatus)
+	return serverStatusRaw.(entity.HealthState)
 }
 
-func (m *StatusMiddleware) Handle(ctx *gin.Context) {
-	status, err := m.uc.CurrentServerStatus()
+func (m *HealthStateMiddleware) Handle(ctx *gin.Context) {
+	status, err := m.uc.CurrentHealthState()
 	if err != nil {
 		statusError(ctx, err)
 		return

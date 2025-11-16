@@ -12,7 +12,7 @@ var ServerStatuses = map[int]string{
 	ServerStatusOff:         "off",
 }
 
-type ServerStatus struct {
+type HealthState struct {
 	ID     uint `gorm:"primaryKey"`
 	Status int  `json:"status"`
 }

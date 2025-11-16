@@ -1,8 +1,9 @@
 package usecase
 
 import (
-	"github.com/nomfodm/InfinityBackend/internal/entity"
 	"mime/multipart"
+
+	"github.com/nomfodm/InfinityBackend/internal/entity"
 )
 
 type AuthUseCase interface {
@@ -35,8 +36,8 @@ type LauncherUseCase interface {
 	RegisterNewUpdate(version, sha256, downloadUrl string, mandatory bool) (entity.LauncherVersion, error)
 }
 
-type ServerStatusUseCase interface {
-	InitServerStatus() error
-	CurrentServerStatus() (entity.ServerStatus, error)
-	SetServerStatus(newStatus int) error
+type HealthStateUseCase interface {
+	InitHealthState() error
+	CurrentHealthState() (entity.HealthState, error)
+	SetHealthState(newStatus int) error
 }

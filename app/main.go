@@ -3,19 +3,21 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/nomfodm/InfinityBackend/internal/entity"
-	"github.com/nomfodm/InfinityBackend/internal/handler/auth"
-	"github.com/nomfodm/InfinityBackend/internal/handler/game"
-	"github.com/nomfodm/InfinityBackend/internal/handler/launcher"
-	"github.com/nomfodm/InfinityBackend/internal/handler/user"
-	postgresRepository "github.com/nomfodm/InfinityBackend/internal/infrastructure/repository/postgres"
-	"github.com/nomfodm/InfinityBackend/internal/usecase"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/nomfodm/InfinityBackend/internal/entity"
+	"github.com/nomfodm/InfinityBackend/internal/handler/auth"
+	"github.com/nomfodm/InfinityBackend/internal/handler/game"
+	"github.com/nomfodm/InfinityBackend/internal/handler/healthstate"
+	"github.com/nomfodm/InfinityBackend/internal/handler/launcher"
+	"github.com/nomfodm/InfinityBackend/internal/handler/user"
+	postgresRepository "github.com/nomfodm/InfinityBackend/internal/infrastructure/repository/postgres"
+	"github.com/nomfodm/InfinityBackend/internal/usecase"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -51,7 +53,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = db.AutoMigrate(&entity.Skin{}, &entity.Cape{}, &entity.MinecraftCredential{}, &entity.User{}, &entity.RefreshToken{}, &entity.LauncherVersion{})
+	err = db.AutoMigrate(&entity.Skin{}, &entity.Cape{}, &entity.MinecraftCredential{}, &entity.User{}, &entity.RefreshToken{}, &entity.LauncherVersion{}, &entity.HealthState{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -60,17 +62,24 @@ func main() {
 
 	router.Use(CORSMiddleware())
 
-	router.GET("/checkConnection", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-			"status":     "working",
-			"serverTime": time.Now(),
-		})
-	})
+	postgresHealthStateRepository := postgresRepository.NewPostgresHealthStateRepository(db)
+	healthStateUseCaseImpl := usecase.NewHealthStateUseCaseImpl(postgresHealthStateRepository)
+	healthStateHander := healthstate.NewHealthStateHandler(healthStateUseCaseImpl)
+
+	healthStateMiddleware := healthstate.NewHealthStateMiddleware(healthStateUseCaseImpl)
+
+	err = healthStateUseCaseImpl.InitHealthState()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	router.GET("/checkConnection", healthStateMiddleware, healthStateHander.Index)
+	router.GET("/health", healthStateMiddleware, healthStateHander.Index)
 
 	postgresUserRepository := postgresRepository.NewPostgresUserRepository(db)
 	authUseCaseImpl := usecase.NewAuthUseCaseImpl(postgresUserRepository)
 	authHandler := auth.NewAuthHandler(authUseCaseImpl)
-	authGroup := router.Group("/auth")
+	authGroup := router.Group("/auth", healthStateMiddleware)
 
 	{
 		authGroup.POST("/signup", authHandler.SignUp)
@@ -86,7 +95,7 @@ func main() {
 	userUseCaseImpl := usecase.NewUserUseCaseImpl(postgresTextureRepository, postgresUserRepository)
 	userHandler := user.NewUserHandler(userUseCaseImpl)
 
-	userGroup := router.Group("/user", authMiddleware)
+	userGroup := router.Group("/user", healthStateMiddleware, authMiddleware)
 	{
 		userGroup.GET("/me", userHandler.Me)
 		userGroup.POST("/skin", userHandler.Skin)
@@ -98,7 +107,7 @@ func main() {
 	gameUseCaseImpl := usecase.NewGameUseCaseImpl(postgresGameRepository, postgresTextureRepository)
 	gameHandler := game.NewGameHandler(gameUseCaseImpl)
 
-	gameGroup := router.Group("/game")
+	gameGroup := router.Group("/game", healthStateMiddleware)
 	{
 		gameGroup.GET("/launcher", authMiddleware, gameHandler.Launcher)
 		gameGroup.POST("/join", gameHandler.Join)
@@ -111,8 +120,9 @@ func main() {
 	launcherHandler := launcher.NewLauncherHandler(launcherUseCaseImpl)
 
 	adminAccessMiddleware := launcher.NewAdminAccessMiddleware()
+	router.GET("/health/set", adminAccessMiddleware, healthStateHander.SetStatus)
 
-	launcherGroup := router.Group("/launcher")
+	launcherGroup := router.Group("/launcher", healthStateMiddleware)
 	{
 		launcherGroup.GET("/download", launcherHandler.DownloadLauncher)
 		launcherGroup.GET("/updates", func(c *gin.Context) {
@@ -123,7 +133,7 @@ func main() {
 		})
 	}
 
-	updateGroup := router.Group("/launcher/update")
+	updateGroup := router.Group("/launcher/update", healthStateMiddleware)
 	{
 		updateGroup.GET("/actual", launcherHandler.ActualVersion)
 		updateGroup.POST("/register", adminAccessMiddleware, launcherHandler.RegisterUpdate)

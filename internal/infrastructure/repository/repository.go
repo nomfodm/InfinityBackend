@@ -39,8 +39,8 @@ type LauncherRepository interface {
 	LastMandatoryVersion() (entity.LauncherVersion, error)
 }
 
-type ServerStatusRepository interface {
-	InitServerStatus() error
-	CurrentServerStatus() (entity.ServerStatus, error)
-	SetServerStatus(newStatus int) error
+type HealthStateRepository interface {
+	InitHealthState() error
+	CurrentHealthState() (entity.HealthState, error)
+	SetHealthState(newStatus int) error
 }
